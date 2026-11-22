@@ -1,0 +1,53 @@
+SET
+--- 1. Integridad de entidad: PK duplicada
+psql:/home/claude/sql/pruebas_integridad.sql:4: ERROR:  duplicate key value violates unique constraint "pk_servicio_aplicado"
+DETAIL:  Key (folio_orden, id_servicio)=(1, 2) already exists.
+--- 2. Integridad referencial: vehiculo con cliente inexistente
+psql:/home/claude/sql/pruebas_integridad.sql:6: ERROR:  insert or update on table "vehiculo" violates foreign key constraint "fk_vehiculo_cliente"
+DETAIL:  Key (id_cliente)=(99) is not present in table "cliente".
+--- 3. Dominio: stock negativo
+psql:/home/claude/sql/pruebas_integridad.sql:8: ERROR:  new row for relation "refaccion" violates check constraint "ck_refaccion_stock"
+DETAIL:  Failing row contains (TEST-NEG, Pieza prueba, X, 10.00, -5).
+--- 4. Dominio: estado de orden no permitido
+psql:/home/claude/sql/pruebas_integridad.sql:10: ERROR:  new row for relation "orden_servicio" violates check constraint "ck_orden_estado"
+DETAIL:  Failing row contains (3, 2026-11-22, null, null, PAUSADA, 1HGCM82633A004352).
+--- 5. Dominio: VIN con longitud incorrecta
+psql:/home/claude/sql/pruebas_integridad.sql:12: ERROR:  new row for relation "vehiculo" violates check constraint "ck_vehiculo_vin"
+DETAIL:  Failing row contains (ABC123           , QQQ-222-D, Toyota, 2019, Azul, 1000, 1).
+--- 6. Jerarquia disjunta: empleado mecanico no puede ser tambien recepcionista
+psql:/home/claude/sql/pruebas_integridad.sql:14: ERROR:  insert or update on table "recepcionista" violates foreign key constraint "fk_recepcionista_empleado"
+DETAIL:  Key (id_empleado, tipo)=(1, RECEPCIONISTA) is not present in table "empleado".
+--- 7. NOT NULL: cliente sin apellido paterno
+psql:/home/claude/sql/pruebas_integridad.sql:16: ERROR:  null value in column "apellido_paterno" of relation "cliente" violates not-null constraint
+DETAIL:  Failing row contains (3, Pedro, null, Ruiz, Calle 1, Centro, 25700, null).
+--- 8. ON DELETE RESTRICT: borrar cliente con vehiculos
+psql:/home/claude/sql/pruebas_integridad.sql:18: ERROR:  update or delete on table "cliente" violates foreign key constraint "fk_vehiculo_cliente" on table "vehiculo"
+DETAIL:  Key (id_cliente)=(1) is still referenced from table "vehiculo".
+--- 9. ON UPDATE CASCADE: cambiar VIN se propaga a la orden
+UPDATE 1
+ folio_orden |        vin        
+-------------+-------------------
+           1 | 1HGCM82633A004999
+           2 | 1N4AL3AP8JC231234
+(2 rows)
+
+--- 10. ON DELETE CASCADE: borrar orden 2 elimina sus servicios, asignaciones y usos
+DELETE 1
+ servicios | asignaciones | usos 
+-----------+--------------+------
+         0 |            0 |    0
+(1 row)
+
+--- 11. Atributos derivados (vistas)
+        vin        | modelo_anio | antiguedad_anios 
+-------------------+-------------+------------------
+ 1HGCM82633A004999 |        2018 |                8
+ 1N4AL3AP8JC231234 |        2020 |                6
+ 3FADP4BJ5BM123456 |        2011 |               15
+(3 rows)
+
+ folio_orden | total_servicios | total_refacciones | total_mano_obra | monto_total 
+-------------+-----------------+-------------------+-----------------+-------------
+           1 |          900.00 |            480.00 |        550.0000 |   1930.0000
+(1 row)
+
