@@ -4,10 +4,10 @@
 - **Unidad:** Unidad 2 — Diseño de Bases de Datos con el modelo E-R
 - **Actividad:** Tarea 2.1 — Modelado conceptual E-R y E-R Extendido de un caso real
 - **Caso de estudio:** Taller Mecánico y Refaccionaria "El Motor"
-- **Herramienta CASE:** draw.io (`.drawio` / `.png`)
+- **Herramienta CASE:** draw.io (`.drawio`)
 
 ## 1. Planteamiento del Problema y Contexto
-El Taller Mecánico y Refaccionaria "El Motor" opera servicios de diagnóstico, mantenimiento y reparación vehicular junto con la gestión y venta/abastecimiento de refacciones. Este diseño conceptual modela los datos operativos para evitar redundancia, inconsistencias y ambigüedades antes de la etapa de diseño lógico y físico.
+El Taller Mecánico y Refaccionaria "El Motor" requiere organizar de forma estructurada la información de su operación diaria, abarcando tanto los servicios de diagnóstico y reparación vehicular como la gestión y venta/abastecimiento de refacciones. Este diseño conceptual modela los datos operativos para evitar redundancia, inconsistencias y ambigüedades antes de pasar al diseño lógico y físico.
 
 ## 2. Reglas de Negocio
 - Todo vehículo atendido se asocia a un cliente registrado y puede registrar una o más órdenes de servicio a lo largo del tiempo.
@@ -25,12 +25,8 @@ El Taller Mecánico y Refaccionaria "El Motor" opera servicios de diagnóstico, 
 El modelo separa claramente las entidades y relaciones del dominio para reflejar las reglas de negocio reales del taller y la refaccionaria, empleando estructuras del modelo E-R extendido únicamente donde aportan claridad semántica y evitan duplicidad de atributos o relaciones ambiguas.
 
 ## 5. Entregables en el Repositorio
-- `Reporte_Tecnico_Tarea_2_1_ER-v2.pdf`: Reporte técnico con planteamiento del problema, reglas de negocio, diagrama E-R/E-RE en alta resolución y justificación de diseño[cite: 2].
+- `Reporte_Tecnico_Tarea_2_1_ER-v2.pdf`: Reporte técnico con planteamiento del problema, reglas de negocio, diagrama E-R/E-RE en alta resolución y justificación de diseño.
 - `diagrama_er_extendido_el_motor.drawio`: Archivo fuente editable del diagrama en herramienta CASE[cite: 2].
-- `diagrama_er_extendido_el_motor.png`: Exportación en imagen del diagrama E-R / E-R Extendido[cite: 2].
 
-## 6. Diagrama E-R / E-R Extendido
-![Diagrama E-R Extendido - Taller Mecánico y Refaccionaria El Motor](diagrama_er_extendido_el_motor.png)[cite: 2]
-
-## 7. Video Explicativo (YouTube)
+## 6. Video Explicativo (YouTube)
 - **Enlace público:** *(Pendiente de incorporar)*
