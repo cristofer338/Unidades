@@ -1,18 +1,36 @@
-# Tarea 2.1 — Modelado conceptual E-R y E-R Extendido
+# Tarea 2.1: Modelado Conceptual E-R y E-R Extendido
 
-**Unidad:** Unidad 2 — Diseño de Bases de Datos con el modelo E-R  
-**Caso de estudio:** Taller Mecánico y Refaccionaria "El Motor"
+## Información General
+- **Unidad:** Unidad 2 — Diseño de Bases de Datos con el modelo E-R
+- **Actividad:** Tarea 2.1 — Modelado conceptual E-R y E-R Extendido de un caso real
+- **Caso de estudio:** Taller Mecánico y Refaccionaria "El Motor"
+- **Herramienta CASE:** draw.io (`.drawio` / `.png`)
 
-## Descripción del proyecto
-Diseño conceptual del sistema de información para el Taller Mecánico y Refaccionaria "El Motor" a partir de su problemática real, reglas de negocio, estructura de entidades y atributos, relaciones con cardinalidades y restricciones de participación, así como elementos del modelo Entidad-Relación Extendido (E-RE) y su representación formal en herramienta CASE.
+## 1. Planteamiento del Problema y Contexto
+El Taller Mecánico y Refaccionaria "El Motor" opera servicios de diagnóstico, mantenimiento y reparación vehicular junto con la gestión y venta/abastecimiento de refacciones. Este diseño conceptual modela los datos operativos para evitar redundancia, inconsistencias y ambigüedades antes de la etapa de diseño lógico y físico.
 
-## Entregables en esta carpeta
-- `Reporte_Tecnico_Tarea_2_1_ER-v2.pdf`: Reporte técnico con el planteamiento del problema, reglas de negocio, diagrama E-R/E-RE en alta resolución y justificación de diseño.
-- `diagrama_er_extendido_el_motor.drawio`: Archivo fuente editable del diagrama elaborado en herramienta CASE[cite: 4].
-- `diagrama_er_extendido_el_motor.png`: Exportación en imagen del diagrama E-R extendido[cite: 4].
+## 2. Reglas de Negocio
+- Todo vehículo atendido se asocia a un cliente registrado y puede registrar una o más órdenes de servicio a lo largo del tiempo.
+- Cada orden de servicio documenta el trabajo realizado y puede incluir mano de obra, servicios y/o refacciones utilizadas.
+- Las refacciones disponen de información de inventario y precio unitario, lo cual condiciona su asignación o salida en las órdenes/ventas.
+- *(Ajusta o añade las reglas específicas de tu reporte técnico).*
 
-## Vista previa del diagrama
-![Diagrama E-R Extendido - Taller El Motor](diagrama_er_extendido_el_motor.png)
+## 3. Diseño Conceptual (Modelo E-R y E-R Extendido)
+- **Entidades:** Identificación de las entidades principales del dominio del taller y la refaccionaria.
+- **Atributos:** Especificación de atributos clave (identificadores), atributos compuestos, atributos derivados y atributos multivalorados.
+- **Relaciones, Cardinalidades y Participación:** Definición de relaciones entre entidades con sus respectivas cardinalidades (`1:1`, `1:N`, `N:M`) y restricciones de participación (total o parcial).
+- **Extensiones E-R Extendido (E-RE):** Aplicación de especialización/generalización, jerarquías y/o agregación según lo definido en el modelo conceptual.
 
-## Video explicativo (YouTube)
-- Enlace al video: *(Agregar aquí el enlace público del video una vez publicado en YouTube)*
+## 4. Justificación del Diseño
+El modelo separa claramente las entidades y relaciones del dominio para reflejar las reglas de negocio reales del taller y la refaccionaria, empleando estructuras del modelo E-R extendido únicamente donde aportan claridad semántica y evitan duplicidad de atributos o relaciones ambiguas.
+
+## 5. Entregables en el Repositorio
+- `Reporte_Tecnico_Tarea_2_1_ER-v2.pdf`: Reporte técnico con planteamiento del problema, reglas de negocio, diagrama E-R/E-RE en alta resolución y justificación de diseño[cite: 2].
+- `diagrama_er_extendido_el_motor.drawio`: Archivo fuente editable del diagrama en herramienta CASE[cite: 2].
+- `diagrama_er_extendido_el_motor.png`: Exportación en imagen del diagrama E-R / E-R Extendido[cite: 2].
+
+## 6. Diagrama E-R / E-R Extendido
+![Diagrama E-R Extendido - Taller Mecánico y Refaccionaria El Motor](diagrama_er_extendido_el_motor.png)[cite: 2]
+
+## 7. Video Explicativo (YouTube)
+- **Enlace público:** *(Pendiente de incorporar)*
