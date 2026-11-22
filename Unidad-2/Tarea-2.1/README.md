@@ -26,7 +26,7 @@ El modelo separa claramente las entidades y relaciones del dominio para reflejar
 
 ## 5. Entregables en el Repositorio
 - `Reporte_Tecnico_Tarea_2_1_ER-v2.pdf`: Reporte técnico con planteamiento del problema, reglas de negocio, diagrama E-R/E-RE en alta resolución y justificación de diseño.
-- `diagrama_er_extendido_el_motor.drawio`: Archivo fuente editable del diagrama en herramienta CASE[cite: 2].
+- `diagrama_er_extendido_el_motor.drawio`: Archivo fuente editable del diagrama en herramienta CASE.
 
 ## 6. Video Explicativo (YouTube)
 - **Enlace público:** *(Pendiente de incorporar)*
