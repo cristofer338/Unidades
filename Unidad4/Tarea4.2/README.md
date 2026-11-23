@@ -23,9 +23,9 @@ Documenta el **proceso deductivo de descomposición de tablas** que lleva a un e
 |---|---|---|
 | 1 | Tomar una estructura no normalizada o con dependencias complejas del proyecto | PDF §2: `HOJA_ORDEN` con grupos repetitivos anidados, ejemplo de una orden y 11 dependencias funcionales identificadas |
 | 2 | Anomalías de la estructura de partida | PDF §2.2 (Tabla 2: inserción, borrado y modificación con casos del taller) |
-| 3 | **Desnormalizado → 1FN** (grupos repetitivos y atomicidad) | PDF §3, Figura 1 y Tabla 3; imagen `img/fig_unf_1fn.png` |
-| 4 | **1FN → 2FN** (dependencias parciales) | PDF §4, Tabla 4, Figura 2 y Tabla 5; imagen `img/fig_1fn_2fn.png` |
-| 5 | **2FN → 3FN** (dependencias transitivas) | PDF §5, Tablas 6 y 7, Figura 3; imagen `img/fig_2fn_3fn.png` |
+| 3 | **Desnormalizado → 1FN** (grupos repetitivos y atomicidad) | PDF §3, Figura 1 y Tabla 3; diagrama Mermaid en este README (§5, Fase 1) |
+| 4 | **1FN → 2FN** (dependencias parciales) | PDF §4, Tabla 4, Figura 2 y Tabla 5; diagrama Mermaid en este README (§5, Fase 2) |
+| 5 | **2FN → 3FN** (dependencias transitivas) | PDF §5, Tablas 6 y 7, Figura 3; diagrama Mermaid en este README (§5, Fase 3) |
 | 6 | Validación de **FNBC** (y comentario de 4FN/5FN) | PDF §6, Tabla 8 (determinantes de las 12 relaciones) |
 | 7 | **Script SQL corregido** del esquema normalizado | `sql/normalized_schema.sql` |
 | 8 | Desglose analítico y anomalías corregidas | PDF §7, Tabla 9 (antes y después) |
@@ -39,12 +39,14 @@ tarea_4_2/
 │   └── Tarea_4_2_Proceso_Normalizacion.pdf      <- desglose analítico (14 páginas)
 ├── sql/
 │   └── normalized_schema.sql                    <- script LDD normalizado
-└── img/
-    ├── fig_unf_1fn.png                          <- no normalizada -> 1FN
-    ├── fig_1fn_2fn.png                          <- 1FN -> 2FN
-    ├── fig_2fn_3fn.png                          <- 2FN -> 3FN
-    └── esquema_final.png                        <- esquema normalizado (12 tablas)
+└── img/                                         <- versiones en imagen de los diagramas (las del PDF)
+    ├── fig_unf_1fn.png
+    ├── fig_1fn_2fn.png
+    ├── fig_2fn_3fn.png
+    └── esquema_final.png
 ```
+
+> Los diagramas de este README están escritos en **Mermaid** (diagramas como código); GitHub los dibuja automáticamente. El esquema final usa notación ER de Mermaid (`erDiagram`); las fases de descomposición usan diagramas de flujo. El PDF incluye las versiones en imagen.
 
 ## 4. Punto de partida
 
@@ -94,7 +96,20 @@ codigo_refaccion             -> nombre_pieza, marca_pieza, precio_unitario, stoc
 
 Se evita aplanar todo en una sola tabla porque obligaría a repetir el producto cartesiano de teléfonos × servicios × mecánicos × refacciones (dependencias multivaluadas independientes, propias de la 4FN).
 
-![1FN](img/fig_unf_1fn.png)
+```mermaid
+flowchart LR
+    UNF["<b>HOJA_ORDEN</b> (no normalizada)<br/>folio_orden, fechas, estado, vin, vehículo,<br/>cliente, nombre_completo, direccion<br/>{ telefono }<br/>{ servicio: id, nombre, precio_base, costo }<br/>{ mecánico: id, curp, nombre, especialidad,<br/>tarifa, horas, { refacción: codigo, nombre,<br/>precio, stock, cantidad } }"]
+    O["<b>ORDEN</b><br/>PK folio_orden<br/>fechas, diagnostico, estado<br/>vin, placa, marca, modelo_anio, color, kilometraje<br/>id_cliente, nombres, apellidos, calle, colonia, cp, correo"]
+    OT["<b>ORDEN_TELEFONO</b><br/>PK, FK folio_orden<br/>PK telefono"]
+    OS["<b>ORDEN_SERVICIO_DET</b><br/>PK, FK folio_orden<br/>PK id_servicio<br/>nombre_servicio, precio_base, costo_aplicado"]
+    OM["<b>ORDEN_MECANICO</b><br/>PK, FK folio_orden<br/>PK id_empleado<br/>curp, nombres, apellidos, fecha_ingreso_emp,<br/>especialidad, tarifa_hora,<br/>horas_trabajadas, fecha_asignacion"]
+    OR["<b>ORDEN_MEC_REFACCION</b><br/>PK, FK folio_orden<br/>PK id_empleado<br/>PK codigo_refaccion<br/>nombre_pieza, marca_pieza,<br/>precio_unitario, stock_actual, cantidad_usada"]
+    UNF -->|"cuerpo de la orden"| O
+    UNF -->|"grupo { telefono }"| OT
+    UNF -->|"grupo { servicios }"| OS
+    UNF -->|"grupo { mecánicos }"| OM
+    UNF -->|"grupo { refacciones } anidado"| OR
+```
 
 ### Fase 2 · 1FN → 2FN
 Se eliminan las **dependencias parciales** en las relaciones con llave compuesta:
@@ -105,7 +120,26 @@ Se eliminan las **dependencias parciales** en las relaciones con llave compuesta
 | `ORDEN_MECANICO` | `id_empleado → curp, nombres, apellidos, fecha_ingreso, especialidad, tarifa_hora` | `EMPLEADO` + `ASIGNACION_TRABAJO(folio_orden, id_mecanico, horas_trabajadas, fecha_asignacion)` |
 | `ORDEN_MEC_REFACCION` | `codigo_refaccion → nombre_pieza, marca_pieza, precio_unitario, stock_actual` | `REFACCION` + `USO_REFACCION(folio_orden, id_mecanico, codigo_refaccion, cantidad_usada)` |
 
-![2FN](img/fig_1fn_2fn.png)
+```mermaid
+flowchart LR
+    OS["<b>ORDEN_SERVICIO_DET</b><br/>PK folio_orden, id_servicio<br/>nombre_servicio, precio_base, costo_aplicado"]
+    OM["<b>ORDEN_MECANICO</b><br/>PK folio_orden, id_empleado<br/>datos del empleado, horas, fecha_asignacion"]
+    OR["<b>ORDEN_MEC_REFACCION</b><br/>PK folio_orden, id_empleado, codigo_refaccion<br/>datos de la pieza, cantidad_usada"]
+
+    S1["<b>SERVICIO</b><br/>PK id_servicio<br/>nombre_servicio, precio_base"]
+    S2["<b>SERVICIO_APLICADO</b><br/>PK, FK folio_orden<br/>PK, FK id_servicio<br/>costo_aplicado"]
+    E1["<b>EMPLEADO</b><br/>PK id_empleado<br/>curp, nombres, apellidos, fecha_ingreso,<br/>especialidad, tarifa_hora"]
+    E2["<b>ASIGNACION_TRABAJO</b><br/>PK, FK folio_orden<br/>PK, FK id_mecanico<br/>horas_trabajadas, fecha_asignacion"]
+    R1["<b>REFACCION</b><br/>PK codigo_refaccion<br/>nombre_pieza, marca_pieza,<br/>precio_unitario, stock_actual"]
+    R2["<b>USO_REFACCION</b><br/>PK, FK folio_orden<br/>PK, FK id_mecanico<br/>PK, FK codigo_refaccion<br/>cantidad_usada"]
+
+    OS -->|"id_servicio → nombre, precio_base"| S1
+    OS -->|"depende de toda la llave"| S2
+    OM -->|"id_empleado → datos del empleado"| E1
+    OM -->|"depende de toda la llave"| E2
+    OR -->|"codigo_refaccion → datos de la pieza"| R1
+    OR -->|"depende de toda la llave"| R2
+```
 
 ### Fase 3 · 2FN → 3FN
 Se eliminan las **dependencias transitivas**:
@@ -114,7 +148,27 @@ Se eliminan las **dependencias transitivas**:
 - Los teléfonos pertenecen al cliente, no a la orden: `ORDEN_TELEFONO` se redefine como **`CLIENTE_TELEFONO(id_cliente, telefono)`**.
 - `EMPLEADO` se especializa en **`MECANICO`** (`especialidad`, `tarifa_hora`) y **`RECEPCIONISTA`** (`turno`, `modulo_atencion`) para evitar columnas nulas. El discriminador `tipo` y la FK compuesta `(id_empleado, tipo)` impiden que un empleado sea de ambos tipos.
 
-![3FN](img/fig_2fn_3fn.png)
+```mermaid
+flowchart LR
+    O["<b>ORDEN</b> (2FN)<br/>folio_orden → vin → vehículo<br/>vin → id_cliente → cliente"]
+    T1["<b>ORDEN_SERVICIO</b><br/>PK folio_orden<br/>fechas, diagnostico, estado<br/>FK vin"]
+    T2["<b>VEHICULO</b><br/>PK vin<br/>placa (UNIQUE), marca, modelo_anio,<br/>color, kilometraje<br/>FK id_cliente"]
+    T3["<b>CLIENTE</b><br/>PK id_cliente<br/>nombres, apellidos,<br/>calle, colonia, cp, correo"]
+    OT["<b>ORDEN_TELEFONO</b><br/>PK, FK folio_orden<br/>PK telefono"]
+    T4["<b>CLIENTE_TELEFONO</b><br/>PK, FK id_cliente<br/>PK telefono"]
+    E["<b>EMPLEADO</b> (2FN)<br/>incluye especialidad y tarifa_hora"]
+    T5["<b>EMPLEADO</b><br/>PK id_empleado<br/>curp (UNIQUE), nombres, apellidos,<br/>fecha_ingreso, tipo"]
+    T6["<b>MECANICO</b><br/>PK, FK id_empleado<br/>especialidad, tarifa_hora"]
+    T7["<b>RECEPCIONISTA</b><br/>PK, FK id_empleado<br/>turno, modulo_atencion"]
+
+    O -->|"quitar transitiva folio → vin"| T1
+    O -->|"quitar transitiva vin → vehículo"| T2
+    O -->|"quitar transitiva id_cliente → cliente"| T3
+    OT -->|"el teléfono es del cliente"| T4
+    E -->|"datos comunes"| T5
+    E -->|"solo mecánicos"| T6
+    E -->|"solo recepcionistas"| T7
+```
 
 ### Validación de FNBC
 
@@ -136,7 +190,102 @@ Se eliminan las **dependencias transitivas**:
 
 ## 6. Esquema final
 
-![Esquema final](img/esquema_final.png)
+```mermaid
+erDiagram
+    cliente ||--o{ cliente_telefono : "tiene"
+    cliente ||--o{ vehiculo : "posee"
+    vehiculo ||--o{ orden_servicio : "ingresa en"
+    orden_servicio ||--o{ servicio_aplicado : "incluye"
+    servicio ||--o{ servicio_aplicado : "se aplica en"
+    empleado ||--o| mecanico : "se especializa en"
+    empleado ||--o| recepcionista : "se especializa en"
+    orden_servicio ||--o{ asignacion_trabajo : "asigna"
+    mecanico ||--o{ asignacion_trabajo : "trabaja en"
+    asignacion_trabajo ||--o{ uso_refaccion : "utiliza"
+    refaccion ||--o{ uso_refaccion : "se usa en"
+
+    cliente {
+        int id_cliente PK
+        varchar nombres
+        varchar apellido_paterno
+        varchar apellido_materno
+        varchar calle
+        varchar colonia
+        char cp
+        varchar correo
+    }
+    cliente_telefono {
+        int id_cliente PK, FK
+        varchar telefono PK
+    }
+    vehiculo {
+        char vin PK
+        varchar placa UK
+        varchar marca
+        smallint modelo_anio
+        varchar color
+        int kilometraje
+        int id_cliente FK
+    }
+    orden_servicio {
+        int folio_orden PK
+        date fecha_ingreso
+        date fecha_entrega_est
+        varchar diagnostico_inicial
+        varchar estado
+        char vin FK
+    }
+    servicio {
+        int id_servicio PK
+        varchar nombre_servicio UK
+        numeric precio_base
+    }
+    servicio_aplicado {
+        int folio_orden PK, FK
+        int id_servicio PK, FK
+        numeric costo_aplicado
+    }
+    empleado {
+        int id_empleado PK
+        char curp UK
+        varchar nombres
+        varchar apellido_paterno
+        varchar apellido_materno
+        date fecha_ingreso
+        varchar tipo
+    }
+    mecanico {
+        int id_empleado PK, FK
+        varchar tipo FK
+        varchar especialidad
+        numeric tarifa_hora
+    }
+    recepcionista {
+        int id_empleado PK, FK
+        varchar tipo FK
+        varchar turno
+        varchar modulo_atencion
+    }
+    asignacion_trabajo {
+        int folio_orden PK, FK
+        int id_mecanico PK, FK
+        numeric horas_trabajadas
+        date fecha_asignacion
+    }
+    refaccion {
+        varchar codigo_refaccion PK
+        varchar nombre_pieza
+        varchar marca_pieza
+        numeric precio_unitario
+        int stock_actual
+    }
+    uso_refaccion {
+        int folio_orden PK, FK
+        int id_mecanico PK, FK
+        varchar codigo_refaccion PK, FK
+        int cantidad_usada
+    }
+```
 
 12 tablas: `cliente`, `cliente_telefono`, `vehiculo`, `empleado`, `mecanico`, `recepcionista`, `orden_servicio`, `servicio`, `servicio_aplicado`, `asignacion_trabajo`, `refaccion`, `uso_refaccion`; más las vistas `v_vehiculo` y `v_orden_monto`.
 
