@@ -1,0 +1,138 @@
+// ============================================================================
+// Conjunto de datos y consultas en Álgebra Relacional (RelaX Calculator)
+// Proyecto: Taller Mecánico y Refaccionaria "El Motor"
+// Autor: Cristofer Alejandro Barboza Chávez (124050398)
+// Unidad 5: Álgebra Relacional
+// ============================================================================
+
+group: TallerElMotor
+
+cliente = {
+  id_cliente: number, nombres: string, apellido_paterno: string, apellido_materno: string, correo: string
+  1, "Juan", "Pérez", "Ruiz", "juan.perez@ejemplo.com"
+  2, "María", "López", "Sosa", "maria.lopez@ejemplo.com"
+  3, "Carlos", "Díaz", "Mora", "carlos.diaz@ejemplo.com"
+}
+
+cliente_telefono = {
+  id_cliente: number, telefono: string
+  1, "8661112233"
+  1, "8662223344"
+  2, "8663334455"
+}
+
+vehiculo = {
+  vin: string, placa: string, marca: string, modelo_anio: number, kilometraje: number, id_cliente: number
+  "1HGCM82633A004352", "ABC-123-D", "Honda", 2018, 85000, 1
+  "1N4AL3AP8JC123456", "XYZ-789-A", "Nissan", 2020, 42000, 2
+}
+
+orden_servicio = {
+  folio_orden: number, fecha_ingreso: string, estado: string, vin: string
+  1, "2026-11-01", "EN_PROCESO", "1HGCM82633A004352"
+  2, "2026-11-02", "TERMINADA", "1N4AL3AP8JC123456"
+}
+
+servicio = {
+  id_servicio: number, nombre_servicio: string, precio_base: number
+  1, "Afinación mayor", 900.00
+  2, "Cambio de balatas", 650.00
+}
+
+servicio_aplicado = {
+  folio_orden: number, id_servicio: number, costo_aplicado: number
+  1, 1, 900.00
+  1, 2, 650.00
+  2, 1, 850.00
+}
+
+empleado = {
+  id_empleado: number, curp: string, nombres: string, tipo: string
+  1, "CURP001", "Luis Torres", "MECANICO"
+  2, "CURP002", "Ana Ríos", "MECANICO"
+}
+
+mecanico = {
+  id_empleado: number, especialidad: string, tarifa_hora: number
+  1, "Motor", 110.00
+  2, "Frenos", 120.00
+}
+
+recepcionista = {
+  id_empleado: number, turno: string, modulo_atencion: string
+  3, "MATUTINO", "Módulo A"
+}
+
+asignacion_trabajo = {
+  folio_orden: number, id_mecanico: number, horas_trabajadas: number
+  1, 1, 3.5
+  1, 2, 2.0
+  2, 1, 4.0
+}
+
+refaccion = {
+  codigo_refaccion: string, nombre_pieza: string, precio_unitario: number, stock_actual: number
+  "R-101", "Filtro de aceite", 120.00, 15
+  "R-205", "Balata delantera", 480.00, 8
+  "R-300", "Bujía iridio", 210.00, 20
+}
+
+uso_refaccion = {
+  folio_orden: number, id_mecanico: number, codigo_refaccion: string, cantidad_usada: number
+  1, 1, "R-101", 1
+  1, 2, "R-205", 1
+}
+
+// ============================================================================
+// CATÁLOGO DE 10 CONSULTAS FORMALES
+// ============================================================================
+
+// C1: Vehículos con kilometraje mayor a 80,000 km
+pi vin, placa, marca, modelo_anio (sigma kilometraje > 80000 (vehiculo))
+
+// C2: Refacciones con precio unitario <= 500.00
+pi codigo_refaccion, nombre_pieza, precio_unitario (sigma precio_unitario <= 500.00 (refaccion))
+
+// C3: Órdenes con su vehículo y cliente
+pi folio_orden, estado, placa, nombres, apellido_paterno, apellido_materno (
+  (orden_servicio join orden_servicio.vin = vehiculo.vin vehiculo)
+  join vehiculo.id_cliente = cliente.id_cliente cliente
+)
+
+// C4: Servicios donde costo_aplicado difiere de precio_base
+pi folio_orden, id_servicio, nombre_servicio, costo_aplicado (
+  sigma costo_aplicado != precio_base (
+    servicio_aplicado join servicio_aplicado.id_servicio = servicio.id_servicio servicio
+  )
+)
+
+// C5: Datos completos de los mecánicos (especialización)
+pi id_empleado, curp, nombres, especialidad, tarifa_hora (
+  empleado join empleado.id_empleado = mecanico.id_empleado mecanico
+)
+
+// C6: Total de horas trabajadas y órdenes asignadas por mecánico
+gamma id_mecanico; sum(horas_trabajadas)->total_horas, count(folio_orden)->num_ordenes (asignacion_trabajo)
+
+// C7: Órdenes cuyo monto total de servicios supera $1,000.00
+sigma total_servicios > 1000.00 (
+  gamma folio_orden; sum(costo_aplicado)->total_servicios (servicio_aplicado)
+)
+
+// C8: Todos los clientes y sus vehículos (incluyendo clientes sin vehículo)
+pi id_cliente, nombres, apellido_paterno, vin (
+  cliente left outer join cliente.id_cliente = vehiculo.id_cliente vehiculo
+)
+
+// C9: Refacciones del catálogo que nunca se han utilizado
+pi codigo_refaccion, nombre_pieza (
+  refaccion natural join (
+    (pi codigo_refaccion (refaccion)) - (pi codigo_refaccion (uso_refaccion))
+  )
+)
+
+// C10: Importe de mano de obra por mecánico y orden de servicio
+pi folio_orden, id_mecanico, nombres, horas_trabajadas * tarifa_hora -> importe_mano_obra (
+  (asignacion_trabajo join asignacion_trabajo.id_mecanico = mecanico.id_empleado mecanico)
+  join mecanico.id_empleado = empleado.id_empleado empleado
+)
